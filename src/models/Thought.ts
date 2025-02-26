@@ -30,4 +30,6 @@ const reactionSchema = new Schema<IReaction>({
     createdAt: {type: Date, default: Date.now },
 });
 
+const Thought = mongoose.model<IThought>('Thought', thoughtSchema);
 
+export default Thought;
