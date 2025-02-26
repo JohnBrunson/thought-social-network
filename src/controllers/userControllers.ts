@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User } from './models/User.js';
+import { User } from '../models/User';
 
 // GET all users
 
@@ -40,7 +40,7 @@ export const createNewUser = async (req: Request, res: Response) => {
 // PUT
 export const modifyUser = async (req: Request, res: Response) => {
     try {
-      const result = await Users
+      const result = await User
         .findOneAndUpdate(
           { name: req.params.id },
           // Replaces id with value in body param
@@ -59,7 +59,7 @@ export const modifyUser = async (req: Request, res: Response) => {
   //DELETE
   export const deleteUser = async (req: Request, res: Response) => {
     try {
-      const result = await Genre.findOneAndDelete({ name: req.params.id });
+      const result = await User.findOneAndDelete({ name: req.params.id });
       res.status(200).json(result);
       console.log(`Deleted: ${result}`);
     } catch (err) {
@@ -69,14 +69,24 @@ export const modifyUser = async (req: Request, res: Response) => {
   }
 
   //POST add friend
-  //TODO: Not sure this is finished
+  // Not sure this is quite right
   export const addFriend = async (req: Request, res: Response) => {
     const newFriend = new User({ id: req.body.id }, email: req.body.email);
     newFriend.save();
-    if (newUser) {
-      res.status(200).json(newUser);
+    if (newFriend) {
+      res.status(200).json(newFriend);
     } else {
       console.log('Uh Oh, something went wrong');
       res.status(500).json({ message: 'something went wrong' });
     }
   };
+
+  //DELETE friend
+  export const deleteFriend = async (req: Request, res: Response) => {
+    try {
+        const result = await User.findOneAndDelete ({name: req.params.id});
+        res.status(200).json(result);
+        console.log(`Deleted: ` ${result});
+    } catch (err) {
+      console.log ('ERROR: ', err)
+    }}

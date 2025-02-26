@@ -17,4 +17,6 @@ const userSchema = new Schema<IUser>({
 })
 
 // Mongoose Model to create the model.
-const User = model ('User', userSchema);
+const User = model ('user', userSchema);
+
+export default User
