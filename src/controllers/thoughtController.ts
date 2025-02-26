@@ -14,24 +14,24 @@ export const getAllThoughts = async (_req: Request, res: Response) => {
 //POST thought
 export const createNewThought = async (req: Request, res: Response) => {
     try{
-        const newThought = new Thought({ thoughtText: req.body.name }, email: req.body.email);
-        newThought.save();
-        if (newThought) {
-          res.status(200).json(newUser);
-    }catch {
+        const newThought = new Thought({ 
+          thoughtText: req.body.thought, 
+          username: req.body.username
+        });
+        await newThought.save();
+        res.status(200).json(newThought);
+    } catch (err) {
       console.log('Uh Oh, something went wrong');
-      res.status(500).json({ message: 'something went wrong' });
+      res.status(500).json({ message: 'Something went wrong' });
     }
-  }};
+  };
 
   //PUT (modify) thought
 export const modifyThought = async (req: Request, res: Response) => {
     try {
       const result = await Thought.findOneAndUpdate(
-          { name: req.params.id },
-          // Replaces id with value in body param
-          { name: req.body.id },
-          // Sets to true so updated document is returned; Otherwise original document will be returned
+          { _id: req.params.id },
+          { thoughtText: req.body.thoughtText },
           { new: true }
         );
       res.status(200).json(result);
@@ -45,7 +45,7 @@ export const modifyThought = async (req: Request, res: Response) => {
 //DELETE Thought
     export const deleteThought = async (req: Request, res: Response) => {
       try {
-        const result = await Thought.findOneAndDelete({ name: req.params.id });
+        const result = await Thought.findOneAndDelete({ _id: req.params.id });
         res.status(200).json(result);
         console.log(`Deleted: ${result}`);
       } catch (err) {
@@ -69,22 +69,37 @@ export const modifyThought = async (req: Request, res: Response) => {
     //POST add Reaction
       // Not sure this is quite right
       export const addReaction = async (req: Request, res: Response) => {
-        const newFriend = new Reaction({ id: req.body.id }, email: req.body.email);
-        newReaction.save();
-        if (newReaction) {
-          res.status(200).json(newFriend);
-        } else {
-          console.log('Uh Oh, something went wrong');
-          res.status(500).json({ message: 'something went wrong' });
+        try {
+          const thought = await Thought.findOne({ _id: req.params.thoughtId });
+          if (thought) { 
+            thought.reactions.push({
+              reactionBody: req.body.reactionBody,
+              username: req.body.username
+            });
+            await thought.save();
+            res.status(200).json(thought);
+          } else {
+            res.status(404).json ({ message: 'Thought not found'});
+          }
+        } catch (err) {
+          console.log ('Uh Oh, something went wrong.');
+          res.status(500).json ({message: 'Something went wrong'})
         }
       };
     
       //DELETE Reaction
       export const deleteReaction = async (req: Request, res: Response) => {
         try {
-            const result = await User.findOneAndDelete ({name: req.params.id});
-            res.status(200).json(result);
-            console.log(`Deleted: ` ${result});
+          const thought = await Thought.findOne({ _id: req.params.thoughtId });
+          if (thought) {
+            thought.reactions.id(req.params.reactionId).remove();
+            await thought.save();
+            res.status(200).json(thought);
+          } else {
+            res.status(400).json({ message: 'Something went wrong'});
+          }
         } catch (err) {
-          console.log ('ERROR: ', err)
-        }}
+          console.log ('ERROR: ', err);
+          res.status(500).json ({ message: 'Something went wrong'})
+        }
+      };
