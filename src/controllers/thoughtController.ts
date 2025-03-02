@@ -1,105 +1,107 @@
+//import mongoose from 'mongoose';
 import { Request, Response } from 'express';
-import Thought from "../models/Thought";
+import Thought  from "../models/Thought";
+
 
 // GET all thoughts
 export const getAllThoughts = async (_req: Request, res: Response) => {
     try {
-        const thoughts = await Thought.find({})
+        const thoughts = await Thought.find({});
         res.status(200).json(thoughts);
-    }catch (err){
-        res.status(500).json({ message: 'Something when wrong when getting All Users'})
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong when getting all thoughts' });
     }
 };
 
-//POST thought
+// POST thought
 export const createNewThought = async (req: Request, res: Response) => {
-    try{
+    try {
         const newThought = new Thought({ 
-          thoughtText: req.body.thought, 
-          username: req.body.username
+            thoughtText: req.body.thoughtText, 
+            username: req.body.username 
         });
         await newThought.save();
         res.status(200).json(newThought);
     } catch (err) {
-      console.log('Uh Oh, something went wrong');
-      res.status(500).json({ message: 'Something went wrong' });
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong' });
     }
-  };
+};
 
-  //PUT (modify) thought
+// PUT (modify) thought
 export const modifyThought = async (req: Request, res: Response) => {
     try {
-      const result = await Thought.findOneAndUpdate(
-          { _id: req.params.id },
-          { thoughtText: req.body.thoughtText },
-          { new: true }
+        const result = await Thought.findOneAndUpdate(
+            { _id: req.params.id },
+            { thoughtText: req.body.thoughtText },
+            { new: true }
         );
-      res.status(200).json(result);
-      console.log(`Updated: ${result}`);
+        res.status(200).json(result);
+        console.log(`Updated: ${result}`);
     } catch (err) {
-      console.log('Uh Oh, something went wrong');
-      res.status(500).json({ message: 'something went wrong' });
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong' });
     }
-  }
+};
 
-//DELETE Thought
-    export const deleteThought = async (req: Request, res: Response) => {
-      try {
+// DELETE Thought
+export const deleteThought = async (req: Request, res: Response) => {
+    try {
         const result = await Thought.findOneAndDelete({ _id: req.params.id });
         res.status(200).json(result);
         console.log(`Deleted: ${result}`);
-      } catch (err) {
-        console.log('Uh Oh, something went wrong');
-        res.status(500).json({ message: 'something went wrong' });
-      }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong' });
     }
+};
 
-//GET thought by id
-  export const findThought = async (req: Request, res:Response ) => {
+// GET thought by id
+export const findThought = async (req: Request, res: Response) => {
     try {
-        const result = await Thought.findOne({ id: req.params.id});
+        const result = await Thought.findOne({ _id: req.params.id });
         res.status(200).json(result);
     } catch (err) {
-      console.log('Uh Oh, something went wrong');
-      res.status(500).json({ message: 'something went wrong' });
-    }};
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+};
 
+// Reactions
+// POST add Reaction
+export const addReaction = async (req: Request, res: Response) => {
+    try {
+        const thought = await Thought.findOneAndUpdate(
+            { _id: req.params.thoughtId },
+            { $addToSet: req.body},
+            { runValidators: true, new: true }
+            );
+        if (!thought) {
+            res.status(404).json({message: 'Thought not Found'});
+        } else {
+            res.status(200).json(thought);
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong when adding the reaction' });
+    }
+};
+// DELETE Reaction
+export const deleteReaction = async (req: Request, res: Response) => {
+    try {
+        const thought = await Thought.findOneAndUpdate(
+            { _id: req.params.thoughtId },
+            { $pull: {reactions: {reactionId: req.params.reactionId} } },
+            {runValidators: true, new: true}
+            );
 
-    // Reactions
-    //POST add Reaction
-      // Not sure this is quite right
-      export const addReaction = async (req: Request, res: Response) => {
-        try {
-          const thought = await Thought.findOne({ _id: req.params.thoughtId });
-          if (thought) { 
-            thought.reactions.push({
-              reactionBody: req.body.reactionBody,
-              username: req.body.username
-            });
-            await thought.save();
-            res.status(200).json(thought);
-          } else {
-            res.status(404).json ({ message: 'Thought not found'});
-          }
-        } catch (err) {
-          console.log ('Uh Oh, something went wrong.');
-          res.status(500).json ({message: 'Something went wrong'})
+        if (!thought) {
+            res.status(404).json({message: 'Thought not found'});
         }
-      };
-    
-      //DELETE Reaction
-      export const deleteReaction = async (req: Request, res: Response) => {
-        try {
-          const thought = await Thought.findOne({ _id: req.params.thoughtId });
-          if (thought) {
-            thought.reactions.id(req.params.reactionId).remove();
-            await thought.save();
-            res.status(200).json(thought);
-          } else {
-            res.status(400).json({ message: 'Something went wrong'});
-          }
-        } catch (err) {
-          console.log ('ERROR: ', err);
-          res.status(500).json ({ message: 'Something went wrong'})
-        }
-      };
+        return res.json(thought);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Something went wrong' });
+    }
+};

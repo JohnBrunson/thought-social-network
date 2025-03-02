@@ -1,3 +1,4 @@
-import Department from './Department.js';
+import User from './User.js';
+import Thought from './Thought.js';
 
-export { Department };
+export { User, Thought };

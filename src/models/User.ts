@@ -13,7 +13,7 @@ const userSchema = new Schema<IUser>({
   name: { type: String, required: true, unique: true, trim: true },
   email: { type: String, required: true, unique: true, trim: true },
   thoughts: [{type: Schema.Types.ObjectId, ref: 'thoughts'}],
-  friends: [{type: User, ref: 'user'}]
+  friends: [{type: Schema.Types.ObjectId, ref: 'user'}]
 })
 
 // Mongoose Model to create the model.
