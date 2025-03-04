@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
+import User from '../models/User.js';
 
 // GET all users
 export const getAllUsers = async (_req: Request, res: Response) => {
@@ -20,6 +20,7 @@ export const createNewUser = async (req: Request, res: Response) => {
         });
         await newUser.save();
         res.status(200).json(newUser);
+        console.log('INFO: User Saved')
     }catch (err) {
       console.log('Uh Oh, something went wrong');
       res.status(500).json({ message: 'Something went wrong' });
@@ -43,7 +44,7 @@ export const modifyUser = async (req: Request, res: Response) => {
     try {
       const result = await User.findOneAndUpdate(
           { _id: req.params.id },
-          { name: req.body.id, email: req.body.email },
+          { name: req.body.name, email: req.body.email },
           // Sets to true so updated document is returned; Otherwise original document will be returned
           { new: true }
         );
@@ -66,30 +67,39 @@ export const modifyUser = async (req: Request, res: Response) => {
       res.status(500).json({ message: 'something went wrong' });
     }
   }
-
+// Test these tomorrow
   //POST add friend
   // Not sure this is quite right
   export const addFriend = async (req: Request, res: Response) => {
     try {
-      const newFriend = new User({ 
-        name: req.body.name,
-        email: req.body.email
-    });
-    await newFriend.save();
-    res.status(200).json(newFriend);
+  const user = await User.findOneAndUpdate(
+    { _id: req.params.userId },
+    { $addToSet: {assignments: req.body } },
+    { runValidators: true, new: true}
+  );
+    if (!user) {
+      return res.status(404).json({ message: 'No user found with that ID'})
+    }
+    return res.json(user);
     } catch (err){
       console.log('Uh Oh, something went wrong');
-      res.status(500).json({ message: 'something went wrong' });
+      return res.status(500).json({ message: 'something went wrong' });
     }
   };
 
   //DELETE friend
   export const deleteFriend = async (req: Request, res: Response) => {
     try {
-        const result = await User.findOneAndDelete ({_id: req.params.id});
-        res.status(200).json(result);
-        console.log(`Deleted: ${result}`);
+        const user = await User.findOneAndUpdate (
+          {_id: req.params.id},
+        { $pull: {friends: {friendId: req.params.friendID} } },
+        { runValidators: true, new: true }
+      );
+      if (!user) {
+        return res.status(404).json({ message: 'No Student found with that ID.'});
+      }
+        return res.json(user);
     } catch (err) {
       console.log ('ERROR: ', err);
-      res.status(500).json ({ message: 'Something went wrong.' })
+      return res.status(500).json ({ message: 'Something went wrong.' })
     }}
