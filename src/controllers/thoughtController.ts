@@ -1,6 +1,6 @@
 //import mongoose from 'mongoose';
 import { Request, Response } from 'express';
-import Thought  from "../models/Thought";
+import Thought  from "../models/Thought.js";
 
 
 // GET all thoughts
