@@ -60,7 +60,7 @@ export const modifyUser = async (req: Request, res: Response) => {
   export const deleteUser = async (req: Request, res: Response) => {
     try {
       const result = await User.findOneAndDelete({ _id: req.params.id });
-      res.status(200).json(result);
+      res.status(200).json({message: 'User Deleted.'});
       console.log(`Deleted: ${result}`);
     } catch (err) {
       console.log('Uh Oh, something went wrong');
@@ -74,7 +74,7 @@ export const modifyUser = async (req: Request, res: Response) => {
     try {
   const user = await User.findOneAndUpdate(
     { _id: req.params.userId },
-    { $addToSet: {assignments: req.body } },
+    { $addToSet: {friends: req.params.friendId } },
     { runValidators: true, new: true}
   );
     if (!user) {
@@ -91,12 +91,12 @@ export const modifyUser = async (req: Request, res: Response) => {
   export const deleteFriend = async (req: Request, res: Response) => {
     try {
         const user = await User.findOneAndUpdate (
-          {_id: req.params.id},
-        { $pull: {friends: {friendId: req.params.friendID} } },
+          {_id: req.params.userId},
+        { $pull: {friends: req.params.friendId} },
         { runValidators: true, new: true }
       );
       if (!user) {
-        return res.status(404).json({ message: 'No Student found with that ID.'});
+        return res.status(404).json({ message: 'No user found with that ID.'});
       }
         return res.json(user);
     } catch (err) {

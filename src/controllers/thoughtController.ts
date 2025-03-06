@@ -1,6 +1,7 @@
 //import mongoose from 'mongoose';
 import { Request, Response } from 'express';
-import Thought  from "../models/Thought.js";
+import Thought from "../models/Thought.js";
+import User from '../models/User.js'
 
 
 // GET all thoughts
@@ -18,11 +19,19 @@ export const getAllThoughts = async (_req: Request, res: Response) => {
 export const createNewThought = async (req: Request, res: Response) => {
     try {
         const newThought = new Thought({ 
-            thoughtText: req.body.thoughtText, 
-            username: req.body.username 
+            username: req.body.username, 
+            thoughtText: req.body.thoughtText,
+            userId: req.body.userId,
         });
+        
+        //Update the user's thoughts
+        const user = await User.findOneAndUpdate(
+            { _id: req.body.userId },
+            { $addToSet: {thoughts: newThought._id } },
+            { runValidators: true, new: true }
+        )
         await newThought.save();
-        res.status(200).json(newThought);
+        res.status(200).json({newThought, user});
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Something went wrong' });
@@ -70,23 +79,50 @@ export const findThought = async (req: Request, res: Response) => {
 
 // Reactions
 // POST add Reaction
+// export const addReaction = async (req: Request, res: Response) => {
+//     try {
+//         const reaction = new Reaction({ 
+//             username: req.body.username, 
+//             reactionBody: req.body.reactionBody,
+//             userId: req.body.userId,
+//         });
+//         // Update Thoughts with Reaction
+//         const thought = await Thought.findOneAndUpdate(
+//             { _id: req.params.thoughtId },
+//             { $addToSet: reactions: ReactionId},
+//             { runValidators: true, new: true }
+//             );
+
+//         if (!thought) {
+//             res.status(404).json({message: 'Thought not Found'});
+//         } else {
+//             res.status(200).json(thought);
+//         }
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ message: 'Something went wrong when adding the reaction' });
+//     }
+// };
+
 export const addReaction = async (req: Request, res: Response) => {
     try {
         const thought = await Thought.findOneAndUpdate(
             { _id: req.params.thoughtId },
-            { $addToSet: req.body},
+            { $addToSet: { reactions: { reactionBody: req.body.reactionBody, username: req.body.username, createdAt: new Date() } } },
             { runValidators: true, new: true }
-            );
+        );
+
         if (!thought) {
-            res.status(404).json({message: 'Thought not Found'});
-        } else {
-            res.status(200).json(thought);
+            return res.status(404).json({ message: 'Thought not found' });
         }
+
+        return res.status(200).json(thought);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Something went wrong when adding the reaction' });
+        return res.status(500).json({ message: 'Something went wrong when adding the reaction' });
     }
 };
+
 // DELETE Reaction
 export const deleteReaction = async (req: Request, res: Response) => {
     try {
