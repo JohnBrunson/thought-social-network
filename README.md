@@ -1,4 +1,4 @@
-# Thoughts Social Network 
+# Thoughts Social Network
 
 ## Description
 
@@ -6,16 +6,19 @@ This is a sample backend using MongoDB for a thoughts social network. The though
 
 ## Installation
 
-Installation is (hopefully) straight forward. Clone the repository and run ```npm run start```. The command will build the software and then run the server using express. 
+Installation is (hopefully) straight forward. Clone the repository and run `npm run start`. The command will build the software and then run the server using express.
 
 ## Usage
+
 ![insomnia-screenshot](readme-images/screenshot.png)
-Since this is a backend only, there's not much I can show that would be visually pleasing. In time, I may build a front end for this along with additional items and information. For now, you can test the routes using some of the boiler plate provided in insomnia-route-testing. Postman will also likely work, but do note that neither it, nor the instructions provided have been tested using it. Please review and determine if you'd like to use it.
+Since this is a backend only, there's not much I can show that would be visually pleasing. You can, however, see a demonstration of the program in action [here](https://drive.google.com/file/d/1-zFO0aKCWBGabRnNfb5W5FtrQfCLQ_1g/view?usp=sharing) In time, I may build a front end for this along with additional items and information. For now, you can test the routes using some of the boiler plate provided in insomnia-route-testing. Postman will also likely work, but do note that neither it, nor the instructions provided have been tested using it. Please review and determine if you'd like to use it.
 
 Please note that there is no authentication for this at this time. Again, this could be something for future development.
 
 ## Credits
+
 N/A
 
 ## License
+
 [MIT](https://choosealicense.com/licenses/mit/)
