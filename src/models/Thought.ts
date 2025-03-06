@@ -5,6 +5,7 @@ interface IThought extends Document {
     thoughtText: string,
     createdAt: Date,
     username: String,
+    userId: String,
     reactions: IReaction[],
 };
 
@@ -15,14 +16,16 @@ interface IReaction extends Document {
     username: string,
     createdAt: Date,
 }
-const reactionSchema = new Schema({
+const reactionSchema = new Schema<IReaction>({
     reactionId: { 
         type: Schema.Types.ObjectId,
         default: () => new Types.ObjectId() 
     },
-    reactionBody: {type: String,
+    reactionBody: {
+        type: String,
         required: true, 
-        maxlength: 280},
+        maxlength: 280
+    },
     username: {
         type: String,
          required: true
@@ -34,7 +37,11 @@ const reactionSchema = new Schema({
 });
 
 const thoughtSchema = new Schema<IThought>({
-    thoughtText: { type: String, required: true, minLength: 1, maxLength: 280},
+    thoughtText: { 
+        type: String, 
+        required: true, 
+        minLength: 1, 
+        maxLength: 280},
     // TODO: getter method required for createdAt. Unclear exactly what is meant by this.
     createdAt: {
         type: Date, 
@@ -44,6 +51,11 @@ const thoughtSchema = new Schema<IThought>({
         type: String, 
         required: true
     },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     reactions: [reactionSchema]
 });
 
@@ -51,3 +63,7 @@ const thoughtSchema = new Schema<IThought>({
 const Thought = model ('Thought', thoughtSchema);
 
 export default Thought;
+
+// const Thought = model<IThought>('Thought', thoughtSchema);
+
+// export { Thought, reactionSchema };
